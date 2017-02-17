@@ -15,7 +15,8 @@ class Downloader:
         if self.cache:
             try:
                 result = self.cache[url]
-            except KeyError:
+                print("Retrieve by cache. " + url)
+            except KeyError as e:
                 # url is not available in cache
                 pass
             else:

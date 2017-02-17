@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+cache/
 
 # C extensions
 *.so
@@ -33,4 +34,11 @@ docs/_build/
 # virtualenv
 venv/
 ENV/
+
+# wing config
+*.wpr
+*.wpu
+
+# other files
+*.csv
 

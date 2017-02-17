@@ -3,6 +3,7 @@ from urllib.parse import urljoin,urlparse
 from urllib.robotparser import RobotFileParser
 from scrapecallback import ScrapeCallback
 from downloader import Downloader
+from diskcache import DiskCache
 
         
 def link_crawler(seed_url, link_regex, max_depth=1, scrape_callback = None):
@@ -12,7 +13,8 @@ def link_crawler(seed_url, link_regex, max_depth=1, scrape_callback = None):
     # keep track which URL's have seen before
     seen = { seed_url: 0 }
     links = []
-    D = Downloader(delay=5, user_agent='wswp', proxies=None, num_retries=1, cache=None)
+    cache = DiskCache()
+    D = Downloader(delay=1, user_agent='wswp', proxies=None, num_retries=1, cache = cache)
     while crawl_queue:
         url = crawl_queue.pop()
         depth = seen.get(url) or 0
