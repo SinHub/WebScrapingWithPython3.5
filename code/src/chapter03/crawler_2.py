@@ -1,4 +1,5 @@
 import re
+from datetime import timedelta
 from urllib.parse import urljoin,urlparse
 from urllib.robotparser import RobotFileParser
 from scrapecallback import ScrapeCallback
@@ -6,15 +7,14 @@ from downloader import Downloader
 from diskcache import DiskCache
 
         
-def link_crawler(seed_url, link_regex, max_depth=1, scrape_callback = None):
+def link_crawler(seed_url, link_regex, max_depth=1, cache_callback = None, scrape_callback = None):
     '''Crawl from given seed URL following links matched by link_regex
     '''
     crawl_queue = [seed_url]
     # keep track which URL's have seen before
     seen = { seed_url: 0 }
     links = []
-    cache = DiskCache()
-    D = Downloader(delay=1, user_agent='wswp', proxies=None, num_retries=1, cache = cache)
+    D = Downloader(delay=1, user_agent='wswp', proxies=None, num_retries=1, cache = cache_callback)
     while crawl_queue:
         url = crawl_queue.pop()
         depth = seen.get(url) or 0
@@ -53,6 +53,4 @@ def is_robot_friendly(base_url, url, user_agent):
 
 
 if __name__ == '__main__':
-    link_crawler('http://example.webscraping.com','/(index|view)', max_depth=3, scrape_callback=ScrapeCallback())
-    
-    
+    link_crawler('http://example.webscraping.com','/(index|view)', max_depth=-1, cache_callback=DiskCache(), scrape_callback=ScrapeCallback())

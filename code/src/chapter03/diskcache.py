@@ -1,11 +1,14 @@
 import os
 import re
 import pickle
+import zlib
+from datetime import datetime, timedelta
 from urllib.parse import urlsplit
 
 class DiskCache:
-    def __init__(self, cache_dir='cache'):
+    def __init__(self, cache_dir='cache', expires=timedelta(days=30)):
         self.cache_dir = cache_dir
+        self.expires = expires
         
     def url_to_path(self, url):
         '''Create file system path for this URL
@@ -30,7 +33,11 @@ class DiskCache:
         path = self.url_to_path(url)
         if os.path.exists(path):
             with open(path, 'rb') as fp:
-                return pickle.load(fp)
+                # zlib 解压缩 + pickle 装载(反序列化)
+                result, timestamp = pickle.loads(zlib.decompress(fp.read()))
+                if self.has_expired(timestamp):
+                    raise KeyError(url + ' has expired')
+                return result
         else:
             # URL has not yet been cached
             raise KeyError(url + ' does not exist')
@@ -42,5 +49,13 @@ class DiskCache:
         folder = os.path.dirname(path)
         if not os.path.exists(folder):
             os.makedirs(folder)
+        timestamp = datetime.utcnow()
+        data = pickle.dumps((result, timestamp))
         with open(path, 'wb') as fp:
-            fp.write(pickle.dumps(result))
+            # pickle 序列化 + zlib 压缩
+            fp.write(zlib.compress(data))
+            
+    def has_expired(self, timestamp):
+        '''Return whether this timestamp has expired
+        '''
+        return datetime.utcnow() > timestamp + self.expires
