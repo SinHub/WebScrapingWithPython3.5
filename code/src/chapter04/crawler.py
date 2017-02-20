@@ -1,20 +1,14 @@
 import re
-from datetime import timedelta
-from urllib.parse import urljoin,urlparse
-from urllib.robotparser import RobotFileParser
-from alexacallback import AlexaCallback
 from downloader import Downloader
-from diskcache import DiskCache
+from urllib.parse import urljoin
 
-        
-def link_crawler(seed_url, cache_callback = None, scrape_callback = None):
-    '''Crawl from given seed URL following links matched by link_regex
+def crawler(seed_url, delay=5, scrape_callback=None, cache=None, user_agent="wswp", num_retries=1, proxies=None, timeout=60, ignore_robots=True):
+    '''Crawel this website
     '''
     crawl_queue = [seed_url]
-    # keep track which URL's have seen before
     seen = { seed_url: 0 }
     links = []
-    D = Downloader(delay=1, user_agent='wswp', proxies=None, num_retries=1, cache = cache_callback)
+    D = Downloader(delay=delay, user_agent=user_agent, proxies=proxies, num_retries=num_retries,cache=cache)
     while crawl_queue:
         url = crawl_queue.pop()
         depth = seen.get(url) or 0
@@ -24,15 +18,24 @@ def link_crawler(seed_url, cache_callback = None, scrape_callback = None):
         # filter for links matching our regular expression
         for link in get_links(html):
             # check if link matches expected regex
-            if re.match(link_regex, link):
+            if re.match('/(index|view)', link):
                 # check if have already seen this link
                 link = urljoin(seed_url, link)
                 if link not in seen:
                     seen[link] = depth + 1
                     crawl_queue.append(link)
-                
 
 
-if __name__ == '__main__':
-    scrape_callback = AlexaCallback()
-    link_crawler('http://s3.amazonaws.com/alexa-static/top-1m.csv.zip', cache_callback=None, scrape_callback=scrape_callback)
+def get_links(html):
+    '''Return a list of links from html
+    '''
+    # a regular expression to extract all links from the webpage
+    webpage_regex = re.compile('<a[^>]+href=["\'](.*?)["\']', re.IGNORECASE)
+    # list of all links from the webpage
+    return webpage_regex.findall(html)
+
+def is_robot_friendly(base_url, url, user_agent):
+    rp = RobotFileParser()
+    rp.set_url(urljoin(base_url, '/robots.txt'))
+    rp.read()
+    return rp.can_fetch(user_agent, url)
