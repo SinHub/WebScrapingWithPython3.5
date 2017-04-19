@@ -56,6 +56,8 @@ class Downloader:
                     download(url, headers, num_retries-1)
             html = None
             code = he.response.status_code
+        except:
+            return {'html': '', "code": ""}
         return {'html': html, "code": code}
 
     def print_url(self, r, *args, ** kwargs):
