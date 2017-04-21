@@ -9,7 +9,7 @@ def main():
     # cache = DiskCache()
     # cache.clear()
     # crawler('http://example.webscraping.com', scrape_callback=scrape_callback, cache=None, timeout=10, ignore_robots=True)
-    thread_crawler('http://example.webscraping.com', scrape_callback=scrape_callback, cache=None, timeout=10, ignore_robots=True, max_threads=5)
+    thread_crawler('http://example.webscraping.com', scrape_callback=scrape_callback, cache=None, timeout=10, ignore_robots=True, max_threads=1)
     
     
 if __name__ == '__main__':

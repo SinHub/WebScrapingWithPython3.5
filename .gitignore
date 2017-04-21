@@ -41,4 +41,6 @@ ENV/
 
 # other files
 *.csv
+*.txt
+*.log
 
