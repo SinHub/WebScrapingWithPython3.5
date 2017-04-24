@@ -43,4 +43,4 @@ ENV/
 *.csv
 *.txt
 *.log
-
+*.png
