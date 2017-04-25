@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
+cache/
+portia_example/
 
 # C extensions
 *.so
@@ -34,3 +36,12 @@ docs/_build/
 venv/
 ENV/
 
+# wing config
+*.wpr
+*.wpu
+
+# other files
+*.csv
+*.txt
+*.log
+*.png
